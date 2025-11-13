@@ -22,7 +22,7 @@ export function CTASection() {
         </Button>
 
         <p className="text-sm text-muted-foreground mt-6">
-          14-day free trial · No credit card required
+          0 Risk 30 Day Trial · No credit card required
         </p>
       </div>
     </section>
