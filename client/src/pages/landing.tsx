@@ -1,6 +1,5 @@
 import { Navigation } from "@/components/Navigation";
 import { HeroSection } from "@/components/HeroSection";
-import { TrustSection } from "@/components/TrustSection";
 import { ProblemSolutionSection } from "@/components/ProblemSolutionSection";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { FeaturesSection } from "@/components/FeaturesSection";
@@ -13,7 +12,6 @@ export default function Landing() {
     <div className="min-h-screen">
       <Navigation />
       <HeroSection />
-      <TrustSection />
       <ProblemSolutionSection />
       <TestimonialsSection />
       <FeaturesSection />
