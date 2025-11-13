@@ -11,6 +11,7 @@ const solutions = [
   "Never miss a lead with automated call logging",
   "Get paid faster with simple invoicing and reminders",
   "Stay organized with a clear schedule and task list",
+  "Simple to use technology, no learning curve needed",
 ];
 
 export function ProblemSolutionSection() {
