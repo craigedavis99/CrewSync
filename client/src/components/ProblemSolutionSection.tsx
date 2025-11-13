@@ -4,6 +4,7 @@ const problems = [
   "Missing calls and losing potential customers",
   "Spending hours on invoicing and payment tracking",
   "Forgetting follow-ups and scheduling conflicts",
+  "Constantly being interrupted answering texts and calls",
 ];
 
 const solutions = [
