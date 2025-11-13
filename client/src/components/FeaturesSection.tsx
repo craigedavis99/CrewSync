@@ -1,13 +1,14 @@
 import { Calendar, Phone, DollarSign, Users, Clock, Smartphone } from "lucide-react";
 import teamImage from "@assets/generated_images/Team_collaboration_photo_00cf84d7.png";
 import mobileImage from "@assets/generated_images/Mobile_app_mockup_photo_70e557bf.png";
+import plumberImage from "@assets/generated_images/Plumber_with_missed_calls_9acda0fe.png";
 
 const features = [
   {
     icon: Phone,
     title: "Never Miss a Call",
     description: "Automatically log every call and capture leads, even when you're on a job.",
-    image: null,
+    image: plumberImage,
   },
   {
     icon: Calendar,
