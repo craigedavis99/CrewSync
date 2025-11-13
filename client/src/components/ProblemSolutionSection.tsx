@@ -36,9 +36,7 @@ export function ProblemSolutionSection() {
           </div>
 
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8" data-testid="text-solution-heading">
-              CrewSync makes it simple
-            </h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8" data-testid="text-solution-heading">Crew Sync makes it simple</h2>
             <div className="space-y-4">
               {solutions.map((solution, index) => (
                 <div
