@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
-import heroImage from "@assets/generated_images/Hero_construction_tech_image_407d4255.png";
+import { Play } from "lucide-react";
+import heroImage from "@assets/generated_images/Blue_collar_services_hero_aa248fb0.png";
 
 export function HeroSection() {
   return (
@@ -9,7 +9,7 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/60 z-10" />
         <img
           src={heroImage}
-          alt="Construction crew using modern technology"
+          alt="Blue collar service professionals"
           className="w-full h-full object-cover"
         />
       </div>
@@ -17,36 +17,32 @@ export function HeroSection() {
       <div className="relative z-20 max-w-7xl mx-auto px-6 lg:px-8 py-20">
         <div className="max-w-3xl">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight" data-testid="text-hero-headline">
-            Streamline Your Construction Crew Management
+            Simple tools so you can focus on the work, not the paperwork.
           </h1>
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed" data-testid="text-hero-subheadline">
-            Powerful software that helps construction teams schedule, track, and manage their workforce efficiently. Save time, reduce errors, and boost productivity.
+          <p className="text-xl md:text-2xl text-muted-foreground mb-4 leading-relaxed" data-testid="text-hero-subheadline">
+            CrewSync helps you provide better customer service, stop missing leads, and eliminate the hassle of tracking invoices and payments — all in one simple place.
+          </p>
+          
+          <p className="text-lg text-primary font-medium mb-8" data-testid="text-hero-microline">
+            Let us help today.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-12">
+          <div className="flex flex-col gap-4 mb-12">
             <Button
               size="lg"
-              className="bg-accent text-accent-foreground font-semibold text-lg px-8 shadow-lg hover:shadow-xl"
+              className="bg-accent text-accent-foreground font-semibold text-lg px-8 shadow-lg hover:shadow-xl w-fit"
               data-testid="button-hero-cta-primary"
             >
-              Start Free Trial
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <Play className="mr-2 h-5 w-5" />
+              Watch a quick demo
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-2 border-primary/80 backdrop-blur-sm bg-background/50 text-foreground font-semibold text-lg px-8"
-              data-testid="button-hero-cta-secondary"
+            <a
+              href="#join"
+              className="text-primary hover:text-primary/80 font-medium text-base underline underline-offset-4 w-fit"
+              data-testid="link-hero-cta-secondary"
             >
-              Watch Demo
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <CheckCircle2 className="h-5 w-5 text-primary" />
-            <span className="text-sm font-medium" data-testid="text-trust-indicator">
-              Trusted by 500+ construction teams nationwide
-            </span>
+              Join the first 25 crews
+            </a>
           </div>
         </div>
       </div>

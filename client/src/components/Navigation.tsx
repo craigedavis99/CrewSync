@@ -22,7 +22,7 @@ export function Navigation() {
             <img
               src={logoImage}
               alt="CrewSync Logo"
-              className="h-12"
+              className="h-16"
               data-testid="img-logo"
             />
           </div>
