@@ -1,4 +1,3 @@
-import { Facebook, Twitter, Linkedin, Instagram } from "lucide-react";
 import logoImage from "@assets/image_1762998239376.png";
 
 export function Footer() {
@@ -41,13 +40,6 @@ export function Footer() {
     },
   ];
 
-  const socialLinks = [
-    { icon: Facebook, href: "#", label: "Facebook" },
-    { icon: Twitter, href: "#", label: "Twitter" },
-    { icon: Linkedin, href: "#", label: "LinkedIn" },
-    { icon: Instagram, href: "#", label: "Instagram" },
-  ];
-
   return (
     <footer id="contact" className="bg-muted/30 border-t">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
@@ -59,22 +51,9 @@ export function Footer() {
               className="h-10 mb-4"
               data-testid="img-footer-logo"
             />
-            <p className="text-sm text-muted-foreground mb-6">
+            <p className="text-sm text-muted-foreground">
               Streamlining construction crew management for teams nationwide.
             </p>
-            <div className="flex gap-4">
-              {socialLinks.map((social, index) => (
-                <a
-                  key={index}
-                  href={social.href}
-                  className="w-9 h-9 rounded-md bg-muted flex items-center justify-center hover-elevate transition-all"
-                  aria-label={social.label}
-                  data-testid={`link-social-${social.label.toLowerCase()}`}
-                >
-                  <social.icon className="h-4 w-4 text-muted-foreground" />
-                </a>
-              ))}
-            </div>
           </div>
 
           {footerSections.map((section, index) => (
