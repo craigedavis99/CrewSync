@@ -24,12 +24,6 @@ const features = [
     image: paperworkImage,
   },
   {
-    icon: Users,
-    title: "Crew Coordination",
-    description: "Know who's working where and when. Keep your whole team on the same page.",
-    image: null,
-  },
-  {
     icon: Clock,
     title: "Time Tracking",
     description: "Track hours worked on each job automatically. No more paper timesheets.",
