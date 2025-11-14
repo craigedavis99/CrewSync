@@ -23,12 +23,6 @@ const features = [
     description: "Create and send professional invoices in seconds. Get paid faster with automatic reminders.",
     image: paperworkImage,
   },
-  {
-    icon: Smartphone,
-    title: "Works on Your Phone",
-    description: "Full access from your phone, tablet, or computer. Work from anywhere.",
-    image: mobileImage,
-  },
 ];
 
 export function FeaturesSection() {
