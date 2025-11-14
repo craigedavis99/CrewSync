@@ -9,11 +9,18 @@ export function HeroSection() {
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight" data-testid="text-hero-headline">
           Simple tools so you can focus on the work, not the paperwork.
         </h1>
-        <p className="text-xl md:text-2xl text-muted-foreground mb-3 leading-relaxed max-w-3xl mx-auto" data-testid="text-hero-subheadline">Crew Sync helps you provide better customer service, stop missing leads, and eliminate the hassle of tracking invoices and payments — all in one simple place.</p>
+        <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed max-w-3xl mx-auto" data-testid="text-hero-subheadline">Crew Sync helps you provide better customer service, stop missing leads, and eliminate the hassle of tracking invoices and payments — all in one simple place.</p>
         
-        <p className="text-lg text-primary font-medium mb-10" data-testid="text-hero-microline">
-          Let us help today.
-        </p>
+        <div className="mb-8">
+          <Button
+            size="lg"
+            variant="default"
+            className="bg-primary text-primary-foreground font-bold text-xl px-12 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105"
+            data-testid="button-hero-help-today"
+          >
+            Let us help today
+          </Button>
+        </div>
 
         <div className="flex flex-col items-center gap-3 mb-6">
           <Button
