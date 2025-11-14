@@ -7,7 +7,7 @@ const features = [
   {
     icon: Phone,
     title: "Never Miss a Call",
-    description: "You don't have time to dig through voicemails. CrewSync pulls every call into one inbox, adds clear summaries, and creates automatic follow-up tasks. It can text customers back instantly so you have the details before you dial. Get big-brand customer service without the big-brand price.",
+    description: "You don't have time to dig through voicemails. Crew Sync pulls every call into one inbox, adds clear summaries, and creates automatic follow-up tasks. It can text customers back instantly so you have the details before you dial. Get big-brand customer service without the big-brand price.",
     image: plumberImage,
   },
   {
