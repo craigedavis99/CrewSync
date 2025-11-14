@@ -13,7 +13,7 @@ const features = [
   {
     icon: Calendar,
     title: "Smart Scheduling",
-    description: "See your jobs, appointments, and crew availability in one simple calendar.",
+    description: "Scrap notes and memory don't scale. Our scheduler gives you a clear view of today's jobs, with all the details in one place. Quickly message customers when you're on your way or behind. It's a 24/7 assistant that never drops the ball.",
     image: teamImage,
   },
   {
