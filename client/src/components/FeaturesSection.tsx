@@ -1,5 +1,5 @@
 import { Calendar, Phone, DollarSign, Users, Clock, Smartphone } from "lucide-react";
-import teamImage from "@assets/generated_images/Team_collaboration_photo_00cf84d7.png";
+import scheduleImage from "@assets/generated_images/Worker_with_schedule_tablet_845a46f3.png";
 import mobileImage from "@assets/generated_images/Mobile_app_mockup_photo_70e557bf.png";
 import plumberImage from "@assets/generated_images/Plumber_with_missed_calls_9acda0fe.png";
 
@@ -14,7 +14,7 @@ const features = [
     icon: Calendar,
     title: "Your schedule in one organized dashboard",
     description: "Scrap notes and memory don't scale. Our scheduler gives you a clear view of today's jobs, with all the details in one place. Quickly message customers when you're on your way or behind. It's a 24/7 assistant that never drops the ball.",
-    image: teamImage,
+    image: scheduleImage,
   },
   {
     icon: DollarSign,
