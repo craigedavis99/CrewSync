@@ -18,7 +18,7 @@ const features = [
   },
   {
     icon: DollarSign,
-    title: "Fast Invoicing",
+    title: "Track invoices easily. Share clean, detailed receipts",
     description: "Create and send professional invoices in seconds. Get paid faster with automatic reminders.",
     image: null,
   },
