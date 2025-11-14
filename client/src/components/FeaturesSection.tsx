@@ -1,4 +1,4 @@
-import { Calendar, Phone, DollarSign, Users, Clock, Smartphone } from "lucide-react";
+import { Calendar, Phone, DollarSign, Users, Smartphone } from "lucide-react";
 import scheduleImage from "@assets/generated_images/Worker_with_schedule_tablet_845a46f3.png";
 import mobileImage from "@assets/generated_images/Mobile_app_mockup_photo_70e557bf.png";
 import plumberImage from "@assets/generated_images/Plumber_with_missed_calls_9acda0fe.png";
@@ -22,12 +22,6 @@ const features = [
     title: "Track invoices easily. Share clean, detailed receipts",
     description: "Create and send professional invoices in seconds. Get paid faster with automatic reminders.",
     image: paperworkImage,
-  },
-  {
-    icon: Clock,
-    title: "Time Tracking",
-    description: "Track hours worked on each job automatically. No more paper timesheets.",
-    image: null,
   },
   {
     icon: Smartphone,
