@@ -7,7 +7,7 @@ const features = [
   {
     icon: Phone,
     title: "Never Miss a Call",
-    description: "Automatically log every call and capture leads, even when you're on a job.",
+    description: "You don't have time to listen to 20 voicemails and organize all your callbacks. Crew Sync puts all call into one location and creates easy to read summaries and automatic to do's for easier management. We also can text the customer right back to capture important details you need before calling them back",
     image: plumberImage,
   },
   {
