@@ -14,7 +14,7 @@ export function HeroSection() {
         <div className="mb-8">
           <Button
             size="lg"
-            className="bg-accent text-accent-foreground font-bold text-2xl px-16 py-7 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 border-2 border-accent"
+            className="bg-[#67bcd9] text-accent-foreground font-bold text-2xl px-16 py-7 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 border-2 border-accent"
             data-testid="button-hero-help-today"
           >
             Let us help today
