@@ -7,8 +7,8 @@ import {
 
 const faqs = [
   {
-    question: "How does CrewSync help with crew scheduling?",
-    answer: "CrewSync uses intelligent algorithms to match crew members with projects based on their skills, certifications, and availability. It automatically detects scheduling conflicts and suggests optimal assignments, reducing scheduling time by up to 80%.",
+    question: "Is the trial really free?",
+    answer: "100%. We don't even ask for your credit card up front like a lot of apps. We truly have a desire to make an app that fits into your workflow and helps you run your business. We hope our small monthly cost will be a no brainer for you. If it doesn't fit or the value is not there, you can simply stop using it without paying a single dollar.",
   },
   {
     question: "Can my crew members use CrewSync on their phones?",
