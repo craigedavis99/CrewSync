@@ -101,7 +101,7 @@ export function Footer() {
 
         <div className="border-t pt-8">
           <p className="text-sm text-muted-foreground text-center" data-testid="text-copyright">
-            © {new Date().getFullYear()} CrewSync. All rights reserved.
+            © {new Date().getFullYear()} Crew Sync. All rights reserved.
           </p>
         </div>
       </div>
