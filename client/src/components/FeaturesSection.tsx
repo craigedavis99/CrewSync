@@ -2,6 +2,7 @@ import { Calendar, Phone, DollarSign, Users, Clock, Smartphone } from "lucide-re
 import scheduleImage from "@assets/generated_images/Worker_with_schedule_tablet_845a46f3.png";
 import mobileImage from "@assets/generated_images/Mobile_app_mockup_photo_70e557bf.png";
 import plumberImage from "@assets/generated_images/Plumber_with_missed_calls_9acda0fe.png";
+import paperworkImage from "@assets/generated_images/Worker_with_late_night_paperwork_e59c6ead.png";
 
 const features = [
   {
@@ -20,7 +21,7 @@ const features = [
     icon: DollarSign,
     title: "Track invoices easily. Share clean, detailed receipts",
     description: "Create and send professional invoices in seconds. Get paid faster with automatic reminders.",
-    image: null,
+    image: paperworkImage,
   },
   {
     icon: Users,
