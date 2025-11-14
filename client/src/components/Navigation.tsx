@@ -2,44 +2,55 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
+import { AboutUsDialog } from "./AboutUsDialog";
 import logoImage from "@assets/image_1762998239376.png";
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [aboutUsOpen, setAboutUsOpen] = useState(false);
 
   const navItems = [
-    { label: "About Us", href: "#about" },
+    { label: "About Us", href: "#about", onClick: () => setAboutUsOpen(true) },
     { label: "Solutions", href: "#solutions" },
     { label: "FAQ", href: "#faq" },
     { label: "Contact Us", href: "#contact" },
   ];
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
-          <div className="flex items-center">
-            <img
-              src={logoImage}
-              alt="CrewSync Logo"
-              className="h-16"
-              data-testid="img-logo"
-            />
-          </div>
+    <>
+      <AboutUsDialog open={aboutUsOpen} onOpenChange={setAboutUsOpen} />
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            <div className="flex items-center">
+              <img
+                src={logoImage}
+                alt="CrewSync Logo"
+                className="h-16"
+                data-testid="img-logo"
+              />
+            </div>
 
-          <div className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                className="text-[0.9375rem] font-medium text-foreground hover:text-primary transition-colors relative group"
-                data-testid={`link-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-              >
-                {item.label}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
-              </a>
-            ))}
-          </div>
+            <div className="hidden md:flex items-center gap-8">
+              {navItems.map((item) => (
+                <button
+                  key={item.label}
+                  onClick={(e) => {
+                    if (item.onClick) {
+                      e.preventDefault();
+                      item.onClick();
+                    } else {
+                      window.location.hash = item.href;
+                    }
+                  }}
+                  className="text-[0.9375rem] font-medium text-foreground hover:text-primary transition-colors relative group bg-transparent border-none cursor-pointer"
+                  data-testid={`link-nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                >
+                  {item.label}
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full" />
+                </button>
+              ))}
+            </div>
 
           <div className="hidden md:flex items-center gap-4">
             <ThemeToggle />
@@ -80,15 +91,21 @@ export function Navigation() {
         <div className="md:hidden bg-background border-t">
           <div className="px-6 py-4 space-y-3">
             {navItems.map((item) => (
-              <a
+              <button
                 key={item.label}
-                href={item.href}
-                className="block py-3 text-base font-medium text-foreground hover:text-primary"
+                onClick={() => {
+                  if (item.onClick) {
+                    item.onClick();
+                  } else {
+                    window.location.hash = item.href;
+                  }
+                  setMobileMenuOpen(false);
+                }}
+                className="block py-3 text-base font-medium text-foreground hover:text-primary w-full text-left bg-transparent border-none cursor-pointer"
                 data-testid={`link-mobile-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                onClick={() => setMobileMenuOpen(false)}
               >
                 {item.label}
-              </a>
+              </button>
             ))}
             <div className="pt-4 space-y-3">
               <Button
@@ -109,5 +126,6 @@ export function Navigation() {
         </div>
       )}
     </nav>
+    </>
   );
 }
