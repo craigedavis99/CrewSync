@@ -9,7 +9,7 @@ export function HeroSection() {
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight" data-testid="text-hero-headline">
           Simple tools so you can focus on the work, not the paperwork.
         </h1>
-        <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed max-w-3xl mx-auto" data-testid="text-hero-subheadline">Crew Sync helps you provide better customer service, stop missing leads, and eliminate the hassle of tracking invoices and payments — all in one simple place.</p>
+        <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed max-w-3xl mx-auto" data-testid="text-hero-subheadline">From first call to final invoice, Crew Sync keeps it all organized in one simple, easy-to-use interface</p>
         
         <div className="mb-8">
           <Button
