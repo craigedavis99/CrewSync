@@ -51,9 +51,6 @@ export function Footer() {
               className="h-10 mb-4"
               data-testid="img-footer-logo"
             />
-            <p className="text-sm text-muted-foreground">
-              Streamlining construction crew management for teams nationwide.
-            </p>
           </div>
 
           {footerSections.map((section, index) => (
