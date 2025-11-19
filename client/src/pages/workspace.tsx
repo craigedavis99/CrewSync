@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import logoImage from "@assets/image_1762998239376.png";
 import {
   Bell,
   CalendarClock,
@@ -39,6 +40,7 @@ import {
   Paperclip,
   PhoneCall,
   Home,
+  Settings,
   ChevronDown,
   ChevronUp,
   Plus,
@@ -181,6 +183,7 @@ const navItems = [
   { value: "schedule", label: "Schedule", icon: CalendarDays },
   { value: "invoices", label: "Invoices", icon: FileText },
   { value: "estimates", label: "Estimates", icon: ClipboardList },
+  { value: "settings", label: "Settings", icon: Settings },
 ];
 
 export default function WorkspaceShell() {
@@ -191,8 +194,8 @@ export default function WorkspaceShell() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
         <div className="grid gap-6 md:grid-cols-[90px_1fr] lg:grid-cols-[110px_1fr]">
           <aside className="hidden md:flex flex-col gap-3 rounded-2xl border border-white/10 bg-[#1e293b] p-3 text-white shadow-xl">
-            <div className="flex h-14 items-center justify-center rounded-xl bg-white/10 text-sm font-semibold">
-              CrewSync
+            <div className="flex h-14 items-center justify-center rounded-xl bg-white/10">
+              <img src={logoImage} alt="CrewSync" className="h-10" />
             </div>
             {navItems.map((item) => {
               const isActive = activeTab === item.value;
@@ -227,9 +230,14 @@ export default function WorkspaceShell() {
                   <Badge variant="outline" className="border-white/30 text-white/80">
                     <Bell className="mr-1 h-3.5 w-3.5" /> Live notifications
                   </Badge>
-                  <Button variant="secondary" size="sm" className="bg-[#fbbf24] text-[#1e293b] hover:bg-[#fbbf24]/90">
-                    <Timer className="mr-2 h-4 w-4" />
-                    Set crew status
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="bg-[#fbbf24] text-[#1e293b] hover:bg-[#fbbf24]/90"
+                    onClick={() => setActiveTab("settings")}
+                    aria-label="Settings"
+                  >
+                    <Settings className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
@@ -709,6 +717,56 @@ export default function WorkspaceShell() {
                         <MessageCircle className="mr-2 h-4 w-4" />
                         Send reminder
                       </Button>
+                  </CardFooter>
+                </Card>
+              </div>
+            </TabsContent>
+
+              <TabsContent value="settings" className="bg-background/80 shadow-sm rounded-2xl border border-border/60">
+                <div className="grid gap-6 p-6 lg:grid-cols-2">
+                  <Card className="border-border/70">
+                    <CardHeader>
+                      <CardTitle className="text-xl">Account & security</CardTitle>
+                      <CardDescription>Update password, recovery email, and security preferences.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="password">New password</Label>
+                        <Input id="password" type="password" placeholder="********" />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label htmlFor="recovery">Recovery email</Label>
+                        <Input id="recovery" type="email" placeholder="you@company.com" />
+                      </div>
+                    </CardContent>
+                    <CardFooter className="flex gap-2">
+                      <Button>Save changes</Button>
+                      <Button variant="outline">Require re-login</Button>
+                    </CardFooter>
+                  </Card>
+
+                  <Card className="border-border/70">
+                    <CardHeader>
+                      <CardTitle className="text-xl">Crew settings</CardTitle>
+                      <CardDescription>Manage crew member names and notification preferences.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid gap-2">
+                        <Label htmlFor="crew-member">Add crew member</Label>
+                        <Input id="crew-member" placeholder="Name" />
+                      </div>
+                      <div className="grid gap-2">
+                        <Label>Notifications</Label>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline">Auto replies</Badge>
+                          <Badge variant="outline">Daily summary</Badge>
+                          <Badge variant="outline">Payment alerts</Badge>
+                        </div>
+                      </div>
+                    </CardContent>
+                    <CardFooter className="flex gap-2">
+                      <Button variant="secondary">Save crew</Button>
+                      <Button variant="outline">Invite via SMS</Button>
                     </CardFooter>
                   </Card>
                 </div>
@@ -720,7 +778,7 @@ export default function WorkspaceShell() {
 
       {/* Mobile bottom nav */}
       <div className="md:hidden fixed bottom-4 left-4 right-4 z-40">
-        <div className="grid grid-cols-5 gap-1 rounded-2xl border border-white/10 bg-[#1e293b]/95 text-white shadow-2xl backdrop-blur">
+        <div className="grid grid-cols-6 gap-1 rounded-2xl border border-white/10 bg-[#1e293b]/95 text-white shadow-2xl backdrop-blur">
           {navItems.map((item) => {
             const isActive = activeTab === item.value;
             return (

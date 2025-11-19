@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
@@ -8,6 +9,7 @@ import logoImage from "@assets/image_1762998239376.png";
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aboutUsOpen, setAboutUsOpen] = useState(false);
+  const [, setLocation] = useLocation();
 
   const navItems = [
     { label: "About Us", href: "#about", onClick: () => setAboutUsOpen(true) },
@@ -57,12 +59,14 @@ export function Navigation() {
             <Button
               variant="outline"
               className="border-2 border-primary text-primary font-semibold"
+              onClick={() => setLocation("/login")}
               data-testid="button-login"
             >
               Log In
             </Button>
             <Button
               className="bg-accent text-accent-foreground font-semibold shadow-md hover:shadow-lg"
+              onClick={() => setLocation("/workspace")}
               data-testid="button-signup"
             >
               Sign up for Free Trial
@@ -111,12 +115,14 @@ export function Navigation() {
               <Button
                 variant="outline"
                 className="w-full border-2 border-primary text-primary font-semibold"
+                onClick={() => setLocation("/login")}
                 data-testid="button-mobile-login"
               >
                 Log In
               </Button>
               <Button
                 className="w-full bg-accent text-accent-foreground font-semibold"
+                onClick={() => setLocation("/workspace")}
                 data-testid="button-mobile-signup"
               >
                 Sign up for Free Trial
