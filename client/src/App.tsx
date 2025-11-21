@@ -7,6 +7,7 @@ import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import WorkspaceShell from "@/pages/workspace";
 import NotFound from "@/pages/not-found";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 function Router() {
   return (
@@ -22,10 +23,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <ThemeProvider defaultTheme="system" storageKey="crewsync-theme">
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

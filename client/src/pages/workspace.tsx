@@ -1,7 +1,9 @@
-﻿import { Fragment, useState } from "react";
+import { Fragment, useState } from "react";
+import type { FormEvent } from "react";
 import { Tabs, TabsContent, TabsList } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   Card,
   CardContent,
@@ -11,6 +13,14 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Table,
   TableBody,
   TableCell,
@@ -18,7 +28,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -26,17 +35,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import logoImage from "@assets/image_1762998239376.png";
 import {
-  Bell,
   CalendarClock,
   CalendarDays,
   CheckCircle2,
   ClipboardList,
   Compass,
-  FileDown,
   FileText,
   MapPin,
   MessageCircle,
   MessageSquare,
+  Trash,
   Paperclip,
   PhoneCall,
   Home,
@@ -49,21 +57,36 @@ import {
   Timer,
 } from "lucide-react";
 
-type MessageStatus = "called-back" | "todo" | "scheduled";
-type JobStatus = "to-be-scheduled" | "scheduled" | "reschedule" | "completed";
+type MessageStatus = "called-back" | "todo";
+type JobStatus = "scheduled" | "completed" | "complete-invoice";
 
 const messageStatusOptions: Record<MessageStatus, string> = {
   "called-back": "Called back",
   todo: "To-Do",
-  scheduled: "Scheduled",
+};
+
+type CompletionDetails = {
+  date: string;
+  notes: string;
+  materials: string;
+  attachments: string[];
 };
 
 const jobStatusOptions: Record<JobStatus, string> = {
-  "to-be-scheduled": "To be scheduled",
   scheduled: "Scheduled",
-  reschedule: "Reschedule",
   completed: "Completed",
+  "complete-invoice": "Complete invoice",
 };
+
+const todayISO = new Date().toISOString().split("T")[0];
+const tomorrowISO = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+const NEW_JOB_CREW_FLAG = "__new_job_crew__";
+const UNASSIGNED_CREW_VALUE = "__unassigned_crew__";
+
+const initialCrewMembers = [
+  { id: "crew-1", name: "Crew A", role: "Install" },
+  { id: "crew-2", name: "Crew B", role: "Service" },
+];
 
 const threads = [
   {
@@ -80,7 +103,7 @@ const threads = [
     id: "t2",
     customer: "Gus Plumbing",
     summary: "Texted in pictures of a broken disposal, wants price check.",
-    status: "scheduled" as MessageStatus,
+    status: "todo" as MessageStatus,
     channel: "Text",
     time: "15m ago",
     transcript:
@@ -98,7 +121,7 @@ const threads = [
   },
 ];
 
-const jobsToday = [
+const initialJobs = [
   {
     id: "j1",
     job: "Water heater install",
@@ -107,6 +130,8 @@ const jobsToday = [
     address: "214 Indigo Ct, Austin, TX",
     status: "scheduled" as JobStatus,
     estimateId: "#EST-1042",
+    date: todayISO,
+    crewMemberId: "crew-1",
   },
   {
     id: "j2",
@@ -114,8 +139,10 @@ const jobsToday = [
     customer: "Maria Sanchez",
     window: "11:30a - 1:00p",
     address: "718 Maple Grove, Austin, TX",
-    status: "reschedule" as JobStatus,
+    status: "scheduled" as JobStatus,
     estimateId: "#EST-1120",
+    date: todayISO,
+    crewMemberId: "crew-2",
   },
   {
     id: "j3",
@@ -123,12 +150,14 @@ const jobsToday = [
     customer: "Nora Wilson",
     window: "2:30p - 4:00p",
     address: "911 Pine Ridge, Austin, TX",
-    status: "to-be-scheduled" as JobStatus,
+    status: "scheduled" as JobStatus,
     estimateId: "#EST-1175",
+    date: tomorrowISO,
+    crewMemberId: null,
   },
 ];
 
-const invoices = [
+const initialInvoices = [
   {
     id: "INV-3021",
     customer: "Maria Sanchez",
@@ -168,9 +197,8 @@ const statusTone: Record<MessageStatus | JobStatus, string> = {
   "called-back": "bg-emerald-100 text-emerald-700 border-emerald-200",
   todo: "bg-amber-100 text-amber-800 border-amber-200",
   scheduled: "bg-blue-100 text-blue-800 border-blue-200",
-  "to-be-scheduled": "bg-slate-100 text-slate-800 border-slate-200",
-  reschedule: "bg-rose-100 text-rose-800 border-rose-200",
   completed: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  "complete-invoice": "bg-cyan-100 text-cyan-800 border-cyan-200",
 };
 
 function StatusBadge({ label, tone }: { label: string; tone: MessageStatus | JobStatus }) {
@@ -189,11 +217,318 @@ const navItems = [
 export default function WorkspaceShell() {
   const [activeTab, setActiveTab] = useState("home");
   const [expandedThread, setExpandedThread] = useState<string | null>(null);
+  const [messageThreads, setMessageThreads] = useState(threads);
+  const [selectedDate, setSelectedDate] = useState(todayISO);
+  const [createJobOpen, setCreateJobOpen] = useState(false);
+  const [createCrewOpen, setCreateCrewOpen] = useState(false);
+  const [newJobForm, setNewJobForm] = useState({
+    job: "",
+    customer: "",
+    date: todayISO,
+    window: "",
+    address: "",
+    crewMemberId: UNASSIGNED_CREW_VALUE,
+  });
+  const [jobs, setJobs] = useState(initialJobs);
+  const [invoices, setInvoices] = useState(initialInvoices);
+  const [crewMembers, setCrewMembers] = useState(initialCrewMembers);
+  const [newCrewForm, setNewCrewForm] = useState({ name: "", role: "" });
+  const [jobPendingCrewAssignment, setJobPendingCrewAssignment] = useState<string | null>(null);
+  const [completionDetails, setCompletionDetails] = useState<Record<string, CompletionDetails>>({});
+  const [expandedCompletionJob, setExpandedCompletionJob] = useState<string | null>(null);
+  const filteredJobs = jobs.filter((job) => job.date === selectedDate);
+  const resetJobForm = (dateValue = selectedDate) =>
+    setNewJobForm({
+      job: "",
+      customer: "",
+      date: dateValue,
+      window: "",
+      address: "",
+      crewMemberId: UNASSIGNED_CREW_VALUE,
+    });
+  const createEmptyCompletionDetails = (dateValue: string): CompletionDetails => ({
+    date: dateValue,
+    notes: "",
+    materials: "",
+    attachments: [],
+  });
+
+  const handleCreateJobSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const newJobDate = newJobForm.date || selectedDate;
+    const newJob = {
+      id: `job-${Date.now()}`,
+      job: newJobForm.job || "New job",
+      customer: newJobForm.customer || "Customer",
+      window: newJobForm.window || "TBD",
+      address: newJobForm.address || "Pending address",
+      status: "scheduled" as JobStatus,
+      estimateId: `#EST-${Math.floor(1000 + Math.random() * 9000)}`,
+      date: newJobDate,
+      crewMemberId: newJobForm.crewMemberId === UNASSIGNED_CREW_VALUE ? null : newJobForm.crewMemberId || null,
+    };
+    setJobs((prev) => [...prev, newJob]);
+    setSelectedDate(newJobDate);
+    resetJobForm(newJobDate);
+    setCreateJobOpen(false);
+  };
+  const handleCreateJobOpenChange = (open: boolean) => {
+    setCreateJobOpen(open);
+    if (open) {
+      resetJobForm();
+    } else {
+      resetJobForm(selectedDate);
+    }
+  };
+
+  const handleJobStatusChange = (jobId: string, newStatus: JobStatus) => {
+    const job = jobs.find((entry) => entry.id === jobId);
+    setJobs((prev) =>
+      prev.map((entry) => (entry.id === jobId ? { ...entry, status: newStatus } : entry)),
+    );
+    if (newStatus === "completed" && job) {
+      setExpandedCompletionJob(jobId);
+      setCompletionDetails((prev) => ({
+        ...prev,
+        [jobId]: prev[jobId] ?? createEmptyCompletionDetails(job.date),
+      }));
+    }
+    if (newStatus !== "completed") {
+      setExpandedCompletionJob((prev) => (prev === jobId ? null : prev));
+    }
+  };
+
+  const handleCompletionDetailChange = (jobId: string, field: keyof CompletionDetails, value: string | string[]) => {
+    setCompletionDetails((prev) => {
+      const existing = prev[jobId] ?? createEmptyCompletionDetails(selectedDate);
+      const nextValue = field === "attachments" ? (value as string[]) : (value as string);
+      return {
+        ...prev,
+        [jobId]: {
+          ...existing,
+          [field]: nextValue,
+        },
+      };
+    });
+  };
+
+  const handleCompletionAttachmentsChange = (jobId: string, files: FileList | null) => {
+    const names = files ? Array.from(files).map((file) => file.name) : [];
+    handleCompletionDetailChange(jobId, "attachments", names);
+  };
+
+  const handleCompletionFormSubmit = (event: FormEvent<HTMLFormElement>, jobId: string) => {
+    event.preventDefault();
+    const job = jobs.find((entry) => entry.id === jobId);
+    if (!job) {
+      return;
+    }
+    const detail = completionDetails[jobId] ?? createEmptyCompletionDetails(job.date);
+    const invoiceId = `INV-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newInvoice = {
+      id: invoiceId,
+      customer: job.customer,
+      serviceDate: detail.date || todayISO,
+      total: "$0.00",
+      status: "To be paid",
+      taxRate: "8.25%",
+      jobId: job.id,
+      notes: detail.notes,
+      materials: detail.materials,
+      attachments: detail.attachments,
+    };
+    setInvoices((prev) => [newInvoice, ...prev]);
+    setJobs((prev) =>
+      prev.map((entry) => (entry.id === jobId ? { ...entry, status: "complete-invoice" } : entry)),
+    );
+    setExpandedCompletionJob(null);
+  };
+
+  const handleDeleteThread = (threadId: string) => {
+    setMessageThreads((prev) => prev.filter((thread) => thread.id !== threadId));
+    if (expandedThread === threadId) {
+      setExpandedThread(null);
+    }
+  };
+
+  const getCrewMemberName = (crewId: string | null | undefined) =>
+    crewMembers.find((member) => member.id === crewId)?.name ?? "Unassigned";
+
+  const handleCrewSelect = (jobId: string, value: string) => {
+    if (value === "__add_new") {
+      setJobPendingCrewAssignment(jobId);
+      setCreateCrewOpen(true);
+      return;
+    }
+    setJobs((prev) =>
+      prev.map((job) =>
+        job.id === jobId
+          ? { ...job, crewMemberId: value === UNASSIGNED_CREW_VALUE ? null : value }
+          : job,
+      ),
+    );
+  };
+
+  const handleCreateCrewSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!newCrewForm.name.trim()) {
+      return;
+    }
+    const newCrewId = `crew-${Date.now()}`;
+    const newCrewMember = {
+      id: newCrewId,
+      name: newCrewForm.name.trim(),
+      role: newCrewForm.role.trim() || "Crew",
+    };
+    setCrewMembers((prev) => [...prev, newCrewMember]);
+    if (jobPendingCrewAssignment) {
+      if (jobPendingCrewAssignment === NEW_JOB_CREW_FLAG) {
+        setNewJobForm((prev) => ({ ...prev, crewMemberId: newCrewId }));
+      } else {
+        setJobs((prev) =>
+          prev.map((job) =>
+            job.id === jobPendingCrewAssignment ? { ...job, crewMemberId: newCrewId } : job,
+          ),
+        );
+      }
+    }
+    setNewCrewForm({ name: "", role: "" });
+    setJobPendingCrewAssignment(null);
+    setCreateCrewOpen(false);
+  };
+
+  const handleNewJobCrewSelect = (value: string) => {
+    if (value === "__add_new") {
+      setJobPendingCrewAssignment(NEW_JOB_CREW_FLAG);
+      setCreateCrewOpen(true);
+      return;
+    }
+    setNewJobForm((prev) => ({ ...prev, crewMemberId: value }));
+  };
+
+  const handleCreateCrewOpenChange = (open: boolean) => {
+    setCreateCrewOpen(open);
+    if (!open) {
+      setJobPendingCrewAssignment(null);
+    }
+  };
+
+  const renderCompletionForm = (job: (typeof initialJobs)[number]) => {
+    const detail = completionDetails[job.id] ?? createEmptyCompletionDetails(job.date);
+    return (
+      <form className="space-y-4" onSubmit={(event) => handleCompletionFormSubmit(event, job.id)}>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-2">
+            <Label htmlFor={`completion-date-${job.id}`}>Completion date</Label>
+            <Input
+              id={`completion-date-${job.id}`}
+              type="date"
+              value={detail.date}
+              onChange={(event) => handleCompletionDetailChange(job.id, "date", event.target.value)}
+              required
+            />
+          </div>
+          <div className="grid gap-2 sm:col-span-2">
+            <Label htmlFor={`completion-materials-${job.id}`}>Materials used</Label>
+            <Input
+              id={`completion-materials-${job.id}`}
+              placeholder="Filters, copper pipe, etc."
+              value={detail.materials}
+              onChange={(event) => handleCompletionDetailChange(job.id, "materials", event.target.value)}
+            />
+          </div>
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor={`completion-notes-${job.id}`}>Job notes</Label>
+          <Textarea
+            id={`completion-notes-${job.id}`}
+            rows={3}
+            placeholder="Scope completed, crew notes, follow-ups..."
+            value={detail.notes}
+            onChange={(event) => handleCompletionDetailChange(job.id, "notes", event.target.value)}
+          />
+        </div>
+        <div className="grid gap-2">
+          <Label htmlFor={`completion-attachments-${job.id}`}>Attachments</Label>
+          <Input
+            id={`completion-attachments-${job.id}`}
+            type="file"
+            multiple
+            onChange={(event) => handleCompletionAttachmentsChange(job.id, event.target.files)}
+          />
+          {detail.attachments.length > 0 && (
+            <p className="text-xs text-muted-foreground">Attached: {detail.attachments.join(", ")}</p>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Button type="submit" size="sm">
+            <CheckCircle2 className="mr-2 h-4 w-4" />
+            Mark complete & invoice
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => setExpandedCompletionJob(null)}>
+            Cancel
+          </Button>
+        </div>
+      </form>
+    );
+  };
+
+  const scheduledJobsTodayCount = jobs.filter(
+    (job) => job.status === "scheduled" && job.date === todayISO,
+  ).length;
+  const estimatesAwaitingApprovalCount = estimates.filter(
+    (estimate) => estimate.status === "Awaiting approval",
+  ).length;
+  const estimatesReadyToCompleteCount = estimates.filter((estimate) => estimate.status === "Approved").length;
+  const unreturnedMessagesCount = messageThreads.filter((thread) => thread.status === "todo").length;
+    const unpaidInvoicesCount = invoices.filter((invoice) => invoice.status !== "Paid").length;
+  const dashboardCards = [
+    {
+      key: "scheduled",
+      title: "Jobs today",
+      value: scheduledJobsTodayCount,
+      caption: "Stops locked in for crews today.",
+      buttonLabel: "Review schedule",
+      targetTab: "schedule",
+    },
+    {
+      key: "estimates-approval",
+      title: "Est waiting appr",
+      value: estimatesAwaitingApprovalCount,
+      caption: "Waiting on customer thumbs-up.",
+      buttonLabel: "Open estimates",
+      targetTab: "estimates",
+    },
+    {
+      key: "estimates-complete",
+      title: "Estimates to Complete",
+      value: estimatesReadyToCompleteCount,
+      caption: "Approved scopes needing work orders.",
+      buttonLabel: "Plan work",
+      targetTab: "estimates",
+    },
+    {
+      key: "messages",
+      title: "Unreturned Messages",
+      value: unreturnedMessagesCount,
+      caption: "Voicemails/texts waiting on a reply.",
+      buttonLabel: "Go to messages",
+      targetTab: "messages",
+    },
+    {
+      key: "invoices",
+      title: "Unpaid Invoices",
+      value: unpaidInvoicesCount,
+      caption: "Outstanding balances to close.",
+      buttonLabel: "Invoice center",
+      targetTab: "invoices",
+    },
+  ];
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#111827] to-[#0f172a] pb-24 md:pb-8">
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300 pb-24 md:pb-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
         <div className="grid gap-6 md:grid-cols-[90px_1fr] lg:grid-cols-[110px_1fr]">
-          <aside className="hidden md:flex flex-col gap-3 rounded-2xl border border-white/10 bg-[#1e293b] p-3 text-white shadow-xl">
+          <aside className="hidden md:flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-xl transition-colors">
             <div className="flex h-14 items-center justify-center rounded-xl bg-white/10">
               <img src={logoImage} alt="CrewSync" className="h-10" />
             </div>
@@ -204,7 +539,7 @@ export default function WorkspaceShell() {
                   key={item.value}
                   onClick={() => setActiveTab(item.value)}
                   className={`flex flex-col items-center gap-1 rounded-xl px-2 py-3 text-[11px] font-medium transition ${
-                    isActive ? "bg-[#38bdf8] text-[#0f172a] shadow-lg" : "text-white/80 hover:bg-white/10"
+                    isActive ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground hover:bg-muted/60"
                   }`}
                   aria-label={item.label}
                 >
@@ -216,29 +551,30 @@ export default function WorkspaceShell() {
           </aside>
 
           <div className="space-y-6">
-            <header className="rounded-2xl border border-white/10 bg-gradient-to-r from-[#1e293b] via-[#16243a] to-[#0b1324] px-5 py-6 text-white shadow-xl">
+            <header className="rounded-2xl border border-border bg-card px-5 py-6 shadow-xl transition-colors">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-cyan-200/80">CrewSync workspace</p>
-                  <h1 className="text-3xl font-semibold">Field Ops Command</h1>
-                  <p className="text-sm text-white/70">Messages, schedules, invoices, and estimates at a glance.</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-primary/80">CrewSync workspace</p>
+                  <h1 className="text-3xl font-semibold text-foreground">Command Center</h1>
+                  <p className="text-sm text-muted-foreground">Messages, schedules, invoices, and estimates at a glance.</p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline" className="border-cyan-200/60 bg-white/10 text-cyan-100">
+                <div className="flex flex-wrap items-center gap-3">
+                  <Badge variant="outline" className="border-primary/40 bg-transparent text-primary">
                     <Sparkles className="mr-1 h-3.5 w-3.5" /> Auto-reply on
                   </Badge>
-                  <Badge variant="outline" className="border-white/30 text-white/80">
-                    <Bell className="mr-1 h-3.5 w-3.5" /> Live notifications
-                  </Badge>
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    className="bg-[#fbbf24] text-[#1e293b] hover:bg-[#fbbf24]/90"
-                    onClick={() => setActiveTab("settings")}
-                    aria-label="Settings"
-                  >
-                    <Settings className="h-4 w-4" />
-                  </Button>
+                  <ThemeToggle />
+                  <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="bg-accent text-accent-foreground hover:bg-accent/90"
+                      onClick={() => setActiveTab("settings")}
+                      aria-label="Settings"
+                    >
+                      <Settings className="h-4 w-4" />
+                    </Button>
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.12em]">Settings</span>
+                  </div>
                 </div>
               </div>
             </header>
@@ -247,25 +583,38 @@ export default function WorkspaceShell() {
               <TabsList className="hidden" aria-hidden />
 
               <TabsContent value="home" className="bg-background/80 shadow-sm rounded-2xl border border-border/60">
-                <div className="grid gap-4 p-6 lg:grid-cols-3">
-                  <div className="lg:col-span-2 space-y-3">
-                    <p className="text-sm font-semibold text-[#1e293b]">Welcome back</p>
+                <div className="space-y-6 p-6">
+                  <div className="space-y-3">
+                    <p className="text-sm font-semibold text-foreground">Welcome back</p>
                     <h2 className="text-2xl font-bold text-foreground">Today's focus</h2>
                     <p className="text-sm text-muted-foreground">
-                      Start with new messages, then confirm stops and send receipts. The home hub will become your dashboard with metrics and shortcuts.
+                      Start with new messages, then confirm stops and send receipts. The home hub is now your dashboard with live counts and shortcuts.
                     </p>
-                    <div className="flex flex-wrap gap-2">
-                      <Badge className="bg-[#38bdf8]/15 text-[#0f172a] border-[#38bdf8]/50">Navy + Cyan accents</Badge>
-                      <Badge className="bg-[#fbbf24]/20 text-[#1e293b] border-[#fbbf24]/50">Yellow CTA</Badge>
-                    </div>
                   </div>
-                  <div className="rounded-xl border border-dashed border-[#38bdf8]/50 bg-[#38bdf8]/10 p-4 text-sm text-foreground">
-                    <p className="font-semibold text-[#1e293b]">Quick actions</p>
-                    <ul className="mt-2 space-y-2 text-muted-foreground">
-                      <li>- Acknowledge new voicemails with auto-text</li>
-                      <li>- Confirm today's stops and send on-my-way links</li>
-                      <li>- Push invoices with PDF + payment link</li>
-                    </ul>
+                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                    {dashboardCards.map((card) => (
+                      <Card
+                        key={card.key}
+                        className="border-border bg-muted/70 transition-colors dark:bg-white/10 dark:border-white/20 dark:text-white/90"
+                      >
+                        <CardHeader className="pb-1 text-center">
+                          <CardTitle className="text-sm font-bold text-muted-foreground">{card.title}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          <p className="text-4xl font-bold text-red-600 text-center">{card.value}</p>
+                          <CardDescription className="text-sm text-muted-foreground text-center">
+                            {card.caption}
+                          </CardDescription>
+                          <Button
+                            variant="secondary"
+                            className="w-full"
+                            onClick={() => setActiveTab(card.targetTab)}
+                          >
+                            {card.buttonLabel}
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 </div>
               </TabsContent>
@@ -283,24 +632,25 @@ export default function WorkspaceShell() {
 
                   <Card className="border-border/70">
                     <CardContent className="p-0">
-                      <div className="hidden md:block">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Caller</TableHead>
-                              <TableHead>Time</TableHead>
-                              <TableHead>Summary</TableHead>
-                              <TableHead>Status</TableHead>
-                              <TableHead className="text-right">Transcript</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {threads.map((thread) => (
-                              <Fragment key={thread.id}>
+                          <div className="hidden md:block">
+                            <Table>
+                              <TableHeader>
                                 <TableRow>
-                                  <TableCell className="font-semibold text-foreground">{thread.customer}</TableCell>
-                                  <TableCell className="text-muted-foreground whitespace-nowrap">{thread.time}</TableCell>
-                                  <TableCell className="text-sm text-foreground max-w-[360px]">
+                                  <TableHead>Caller</TableHead>
+                                  <TableHead>Time</TableHead>
+                                  <TableHead>Summary</TableHead>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead className="text-right">Transcript</TableHead>
+                                  <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {messageThreads.map((thread) => (
+                                  <Fragment key={thread.id}>
+                                    <TableRow>
+                                      <TableCell className="font-semibold text-foreground">{thread.customer}</TableCell>
+                                      <TableCell className="text-muted-foreground whitespace-nowrap">{thread.time}</TableCell>
+                                      <TableCell className="text-sm text-foreground max-w-[360px]">
                                     <p className="line-clamp-2">{thread.summary}</p>
                                   </TableCell>
                                   <TableCell className="w-[200px]">
@@ -317,35 +667,45 @@ export default function WorkspaceShell() {
                                       </SelectContent>
                                     </Select>
                                   </TableCell>
-                                  <TableCell className="text-right">
-                                    <Button
-                                      variant="ghost"
-                                      size="icon"
-                                      onClick={() => setExpandedThread(expandedThread === thread.id ? null : thread.id)}
+                                    <TableCell className="text-right">
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => setExpandedThread(expandedThread === thread.id ? null : thread.id)}
                                     >
                                       {expandedThread === thread.id ? (
                                         <ChevronUp className="h-4 w-4" />
                                       ) : (
                                         <ChevronDown className="h-4 w-4" />
                                       )}
-                                    </Button>
-                                  </TableCell>
-                                </TableRow>
-                                {expandedThread === thread.id && (
-                                  <TableRow className="bg-muted/30">
-                                    <TableCell colSpan={5} className="text-sm text-muted-foreground leading-relaxed">
-                                      {thread.transcript}
+                                      </Button>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleDeleteThread(thread.id)}
+                                        aria-label={`Delete message from ${thread.customer}`}
+                                      >
+                                        <Trash className="h-4 w-4 text-rose-500" />
+                                      </Button>
                                     </TableCell>
                                   </TableRow>
-                                )}
-                              </Fragment>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
+                                  {expandedThread === thread.id && (
+                                    <TableRow className="bg-muted/30">
+                                      <TableCell colSpan={6} className="text-sm text-muted-foreground leading-relaxed">
+                                        {thread.transcript}
+                                      </TableCell>
+                                    </TableRow>
+                                  )}
+                                </Fragment>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
 
-                      <div className="grid gap-3 p-4 md:hidden">
-                        {threads.map((thread) => {
+                        <div className="grid gap-3 p-4 md:hidden">
+                        {messageThreads.map((thread) => {
                           const isOpen = expandedThread === thread.id;
                           return (
                             <div key={thread.id} className="rounded-lg border border-border/70 bg-background p-3 shadow-sm">
@@ -354,7 +714,17 @@ export default function WorkspaceShell() {
                                   <p className="text-sm font-semibold text-foreground">{thread.customer}</p>
                                   <p className="text-xs text-muted-foreground">{thread.time}</p>
                                 </div>
-                                <StatusBadge label={messageStatusOptions[thread.status]} tone={thread.status} />
+                                <div className="flex items-center gap-1">
+                                  <StatusBadge label={messageStatusOptions[thread.status]} tone={thread.status} />
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleDeleteThread(thread.id)}
+                                    aria-label={`Delete message from ${thread.customer}`}
+                                  >
+                                    <Trash className="h-4 w-4 text-rose-500" />
+                                  </Button>
+                                </div>
                               </div>
                               <p className="mt-2 text-sm text-foreground">{thread.summary}</p>
                               <div className="mt-3 space-y-2">
@@ -409,100 +779,208 @@ export default function WorkspaceShell() {
                   </Card>
                 </div>
               </TabsContent>
+
+
               <TabsContent value="schedule" className="bg-background/80 shadow-sm rounded-2xl border border-border/60">
-                <div className="grid gap-6 p-6 lg:grid-cols-[380px_1fr]">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-foreground">Jobs today</h3>
-                    <ScrollArea className="h-[520px] pr-2">
-                      <div className="space-y-3">
-                        {jobsToday.map((job) => (
-                          <Card key={job.id} className="border-border/70">
-                            <CardHeader className="pb-3">
-                              <div className="flex flex-col gap-1">
-                                <div className="flex items-center justify-between gap-2">
+                <div className="space-y-4 p-6">
+                  <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <h3 className="text-lg font-semibold text-foreground">Jobs today</h3>
+                        <Badge variant="outline" className="border-primary/40 text-primary">
+                          {filteredJobs.length} {filteredJobs.length === 1 ? "stop" : "stops"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Pick a date, assign a crew, and keep jobs moving.</p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <Input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(event) => setSelectedDate(event.target.value)}
+                        className="w-[180px]"
+                      />
+                      <Button onClick={() => handleCreateJobOpenChange(true)} className="inline-flex items-center gap-2">
+                        <Plus className="h-4 w-4" />
+                        Create job
+                      </Button>
+                    </div>
+                  </div>
+                  <Card className="border-border/70">
+                    <CardContent className="p-0">
+                      {filteredJobs.length === 0 ? (
+                        <div className="p-6 text-center text-sm text-muted-foreground">
+                          No jobs scheduled for {selectedDate}. Use Create job to add one.
+                        </div>
+                      ) : (
+                        <>
+                          <div className="hidden lg:block">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Job</TableHead>
+                                  <TableHead>Window</TableHead>
+                                  <TableHead>Customer</TableHead>
+                                  <TableHead>Address</TableHead>
+                                  <TableHead>Status</TableHead>
+                                  <TableHead>Crew</TableHead>
+                                  <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {filteredJobs.map((job) => (
+                                  <Fragment key={job.id}>
+                                    <TableRow>
+                                      <TableCell className="font-semibold text-foreground">
+                                        <div className="flex flex-col">
+                                          <span>{job.job}</span>
+                                          <span className="text-xs text-muted-foreground">Estimate {job.estimateId}</span>
+                                        </div>
+                                      </TableCell>
+                                      <TableCell className="text-muted-foreground">{job.window}</TableCell>
+                                      <TableCell className="text-muted-foreground">{job.customer}</TableCell>
+                                      <TableCell className="text-muted-foreground">
+                                        <div className="flex items-center gap-1 text-xs">
+                                          <MapPin className="h-3.5 w-3.5 text-primary" />
+                                          <span>{job.address}</span>
+                                        </div>
+                                      </TableCell>
+                                      <TableCell className="space-y-2">
+                                        <StatusBadge label={jobStatusOptions[job.status]} tone={job.status} />
+                                        <Select
+                                          value={job.status}
+                                          onValueChange={(value) => handleJobStatusChange(job.id, value as JobStatus)}
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Update job status" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            {Object.entries(jobStatusOptions).map(([value, label]) => (
+                                              <SelectItem key={value} value={value}>
+                                                {label}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                      </TableCell>
+                                      <TableCell className="space-y-2">
+                                        <Select
+                                          value={job.crewMemberId ?? UNASSIGNED_CREW_VALUE}
+                                          onValueChange={(value) => handleCrewSelect(job.id, value)}
+                                        >
+                                          <SelectTrigger>
+                                            <SelectValue placeholder="Assign crew" />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value={UNASSIGNED_CREW_VALUE}>Unassigned</SelectItem>
+                                            {crewMembers.map((member) => (
+                                              <SelectItem key={member.id} value={member.id}>
+                                                {member.name} {member.role ? `- ${member.role}` : ""}
+                                              </SelectItem>
+                                            ))}
+                                            <SelectItem value="__add_new">+ Add new crew member</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                        <p className="text-xs text-muted-foreground">{getCrewMemberName(job.crewMemberId)}</p>
+                                      </TableCell>
+                                      <TableCell className="text-right">
+                                        <div className="flex flex-wrap justify-end gap-2">
+                                          <Button size="sm" variant="outline">
+                                            <Compass className="mr-1.5 h-4 w-4" />
+                                            Map
+                                          </Button>
+                                          <Button size="sm" variant="ghost">
+                                            <Send className="mr-1.5 h-4 w-4" />
+                                            On My Way
+                                          </Button>
+                                        </div>
+                                      </TableCell>
+                                    </TableRow>
+                                    {job.status === "completed" && expandedCompletionJob === job.id && (
+                                      <TableRow className="bg-muted/40">
+                                        <TableCell colSpan={7}>{renderCompletionForm(job)}</TableCell>
+                                      </TableRow>
+                                    )}
+                                  </Fragment>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                          <div className="lg:hidden divide-y divide-border/70">
+                            {filteredJobs.map((job) => (
+                              <div key={job.id} className="space-y-3 p-4">
+                                <div className="flex items-center justify-between">
                                   <div>
                                     <p className="font-semibold text-foreground">{job.job}</p>
-                                    <p className="text-xs text-muted-foreground">for {job.customer}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {job.window} - {job.customer}
+                                    </p>
                                   </div>
                                   <StatusBadge label={jobStatusOptions[job.status]} tone={job.status} />
                                 </div>
-                                <p className="text-sm text-muted-foreground">{job.window}</p>
                                 <div className="flex items-center text-xs text-muted-foreground">
                                   <MapPin className="mr-1 h-3.5 w-3.5 text-primary" />
                                   {job.address}
                                 </div>
-                                <p className="text-xs font-medium text-primary">Linked estimate {job.estimateId}</p>
+                                <p className="text-xs font-medium text-primary">Estimate {job.estimateId}</p>
+                                <Select
+                                  value={job.status}
+                                  onValueChange={(value) => handleJobStatusChange(job.id, value as JobStatus)}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Update job status" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {Object.entries(jobStatusOptions).map(([value, label]) => (
+                                      <SelectItem key={value} value={value}>
+                                        {label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                                <div className="space-y-1">
+                                  <Label className="text-xs text-muted-foreground">Crew</Label>
+                                  <Select
+                                    value={job.crewMemberId ?? UNASSIGNED_CREW_VALUE}
+                                    onValueChange={(value) => handleCrewSelect(job.id, value)}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Assign crew" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                    <SelectItem value={UNASSIGNED_CREW_VALUE}>Unassigned</SelectItem>
+                                      {crewMembers.map((member) => (
+                                        <SelectItem key={member.id} value={member.id}>
+                                          {member.name} {member.role ? `- ${member.role}` : ""}
+                                        </SelectItem>
+                                      ))}
+                                      <SelectItem value="__add_new">+ Add new crew member</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <p className="text-xs text-muted-foreground">{getCrewMemberName(job.crewMemberId)}</p>
+                                </div>
+                                {job.status === "completed" && expandedCompletionJob === job.id && (
+                                  <div className="rounded-lg bg-muted/40 p-3">{renderCompletionForm(job)}</div>
+                                )}
+                                <div className="flex flex-wrap gap-2">
+                                  <Button size="sm" variant="outline">
+                                    <Compass className="mr-2 h-4 w-4" />
+                                    Open maps
+                                  </Button>
+                                  <Button size="sm" variant="ghost">
+                                    <Send className="mr-2 h-4 w-4" />
+                                    On My Way
+                                  </Button>
+                                </div>
                               </div>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                              <Select defaultValue={job.status}>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Update job status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {Object.entries(jobStatusOptions).map(([value, label]) => (
-                                    <SelectItem key={value} value={value}>
-                                      {label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <div className="flex flex-wrap gap-2">
-                                <Button size="sm" variant="secondary">
-                                  <CalendarDays className="mr-2 h-4 w-4" />
-                                  Confirm appointment
-                                </Button>
-                                <Button size="sm" variant="outline">
-                                  <Compass className="mr-2 h-4 w-4" />
-                                  Open maps
-                                </Button>
-                                <Button size="sm" variant="ghost">
-                                  <Send className="mr-2 h-4 w-4" />
-                                  On my way
-                                </Button>
-                              </div>
-                              <div className="rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground">
-                                Marking this job completed will open the invoice + receipts screen to collect payment and upload photos.
-                              </div>
-                            </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  </div>
-
-                  <div className="space-y-4">
-                    <Card className="border-border/70">
-                      <CardHeader>
-                        <CardTitle className="text-xl">Crew timeline</CardTitle>
-                        <CardDescription>Track where techs are headed and what is next in their queue.</CardDescription>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        <div className="grid gap-3 sm:grid-cols-2">
-                          <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-3 text-sm text-muted-foreground">
-                            Live map & GPS routing placeholder - choose Google Maps or Apple CarPlay to launch navigation from the browser.
+                            ))}
                           </div>
-                          <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-3 text-sm text-muted-foreground">
-                            Calendar feed placeholder - show promises, reschedules, and capacity across the crew.
-                          </div>
-                        </div>
-                        <Separator />
-                        <div className="flex flex-wrap gap-2">
-                          <Button variant="outline" size="sm">
-                            <CalendarClock className="mr-2 h-4 w-4" />
-                            Slot new job
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <PhoneCall className="mr-2 h-4 w-4" />
-                            Notify customer
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
+                        </>
+                      )}
+                    </CardContent>
+                  </Card>
                 </div>
-              </TabsContent>
-              <TabsContent value="invoices" className="bg-background/80 shadow-sm rounded-2xl border border-border/60">
+              </TabsContent>              <TabsContent value="invoices" className="bg-background/80 shadow-sm rounded-2xl border border-border/60">
                 <div className="grid gap-6 p-6 lg:grid-cols-[420px_1fr]">
                   <div className="space-y-4">
                     <h3 className="text-lg font-semibold text-foreground">Invoices & receipts</h3>
@@ -526,23 +1004,30 @@ export default function WorkspaceShell() {
                               <span>Subtotal + tax ({invoice.taxRate})</span>
                               <span className="font-semibold text-foreground">{invoice.total}</span>
                             </div>
-                            <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-                              <Badge variant="outline">Attach photos</Badge>
-                              <Badge variant="outline">Notes</Badge>
-                              <Badge variant="outline">Send PDF</Badge>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                              <Button size="sm" variant="secondary">
-                                <FileDown className="mr-2 h-4 w-4" />
-                                Download PDF
-                              </Button>
+                          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                            <Badge variant="outline">Attach photos</Badge>
+                            <Badge variant="outline">Notes</Badge>
+                            <Badge variant="outline">Send PDF</Badge>
+                          </div>
+                          {invoice.materials && (
+                            <p className="text-xs text-muted-foreground">Materials: {invoice.materials}</p>
+                          )}
+                          {invoice.notes && (
+                            <p className="text-xs text-muted-foreground">Notes: {invoice.notes}</p>
+                          )}
+                          {invoice.attachments && invoice.attachments.length > 0 && (
+                            <p className="text-xs text-muted-foreground">
+                              Attachments: {invoice.attachments.join(", ")}
+                            </p>
+                          )}
+                          <div className="flex flex-wrap gap-2">
+                            <Button size="sm" variant="secondary">
+                              <Send className="mr-2 h-4 w-4" />
+                              Email PDF
+                            </Button>
                               <Button size="sm" variant="outline">
-                                <Send className="mr-2 h-4 w-4" />
-                                Text secure link
-                              </Button>
-                              <Button size="sm" variant="ghost">
                                 <MessageCircle className="mr-2 h-4 w-4" />
-                                Email customer
+                                SMS PDF link
                               </Button>
                             </div>
                           </CardContent>
@@ -776,9 +1261,127 @@ export default function WorkspaceShell() {
         </div>
       </div>
 
+      <Dialog open={createJobOpen} onOpenChange={handleCreateJobOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <form className="space-y-4" onSubmit={handleCreateJobSubmit}>
+            <DialogHeader>
+              <DialogTitle>Create job</DialogTitle>
+              <DialogDescription>Log a new stop, pick the date, and route it to the crew.</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-2">
+              <Label htmlFor="job-title">Job title</Label>
+              <Input
+                id="job-title"
+                placeholder="Example: AC tune-up"
+                value={newJobForm.job}
+                onChange={(event) => setNewJobForm((prev) => ({ ...prev, job: event.target.value }))}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="job-customer">Customer</Label>
+              <Input
+                id="job-customer"
+                placeholder="Customer name"
+                value={newJobForm.customer}
+                onChange={(event) => setNewJobForm((prev) => ({ ...prev, customer: event.target.value }))}
+                required
+              />
+            </div>
+            <div className="grid gap-2 sm:grid-cols-2 sm:gap-3">
+              <div className="grid gap-2">
+                <Label htmlFor="job-date">Date</Label>
+                <Input
+                  id="job-date"
+                  type="date"
+                  value={newJobForm.date}
+                  onChange={(event) => setNewJobForm((prev) => ({ ...prev, date: event.target.value }))}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="job-window">Time window</Label>
+                <Input
+                  id="job-window"
+                  placeholder="9:00a - 11:00a"
+                  value={newJobForm.window}
+                  onChange={(event) => setNewJobForm((prev) => ({ ...prev, window: event.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="job-address">Address</Label>
+              <Input
+                id="job-address"
+                placeholder="123 Main St, City, ST"
+                value={newJobForm.address}
+                onChange={(event) => setNewJobForm((prev) => ({ ...prev, address: event.target.value }))}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="job-crew">Assign crew</Label>
+              <Select value={newJobForm.crewMemberId} onValueChange={handleNewJobCrewSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Unassigned" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={UNASSIGNED_CREW_VALUE}>Unassigned</SelectItem>
+                  {crewMembers.map((member) => (
+                    <SelectItem key={member.id} value={member.id}>
+                      {member.name} {member.role ? `- ${member.role}` : ""}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="__add_new">+ Add new crew member</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <DialogFooter className="flex flex-wrap gap-2">
+              <Button type="button" variant="outline" onClick={() => handleCreateJobOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">Save job</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={createCrewOpen} onOpenChange={handleCreateCrewOpenChange}>
+        <DialogContent className="sm:max-w-md">
+          <form className="space-y-4" onSubmit={handleCreateCrewSubmit}>
+            <DialogHeader>
+              <DialogTitle>Add crew member</DialogTitle>
+              <DialogDescription>Save commonly assigned crew so you can route jobs in one click.</DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-2">
+              <Label htmlFor="crew-name">Name</Label>
+              <Input
+                id="crew-name"
+                placeholder="Crew name"
+                value={newCrewForm.name}
+                onChange={(event) => setNewCrewForm((prev) => ({ ...prev, name: event.target.value }))}
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="crew-role">Role</Label>
+              <Input
+                id="crew-role"
+                placeholder="Install - Service - HVAC"
+                value={newCrewForm.role}
+                onChange={(event) => setNewCrewForm((prev) => ({ ...prev, role: event.target.value }))}
+              />
+            </div>
+            <DialogFooter className="flex flex-wrap gap-2">
+              <Button type="button" variant="outline" onClick={() => setCreateCrewOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">Save crew</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       {/* Mobile bottom nav */}
       <div className="md:hidden fixed bottom-4 left-4 right-4 z-40">
-        <div className="grid grid-cols-6 gap-1 rounded-2xl border border-white/10 bg-[#1e293b]/95 text-white shadow-2xl backdrop-blur">
+        <div className="grid grid-cols-6 gap-1 rounded-2xl border border-border bg-card/95 text-foreground shadow-2xl backdrop-blur">
           {navItems.map((item) => {
             const isActive = activeTab === item.value;
             return (
@@ -786,7 +1389,7 @@ export default function WorkspaceShell() {
                 key={item.value}
                 onClick={() => setActiveTab(item.value)}
                 className={`flex flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-[11px] font-medium ${
-                  isActive ? "bg-[#38bdf8] text-[#0f172a]" : "text-white/80"
+                  isActive ? "bg-primary text-primary-foreground" : "text-muted-foreground"
                 }`}
                 aria-label={item.label}
               >
@@ -800,3 +1403,13 @@ export default function WorkspaceShell() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
