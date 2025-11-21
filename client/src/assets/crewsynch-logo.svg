@@ -1,0 +1,48 @@
+<svg width="800" height="220" viewBox="0 0 800 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="crewSynchDark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#132a63" />
+      <stop offset="100%" stop-color="#193979" />
+    </linearGradient>
+    <linearGradient id="crewSynchLight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3bd6ff" />
+      <stop offset="100%" stop-color="#0095ff" />
+    </linearGradient>
+    <linearGradient id="crewSynchOrbit" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#00c4ff" />
+      <stop offset="100%" stop-color="#6bdcff" />
+    </linearGradient>
+  </defs>
+
+  <path
+    d="M40 150C120 70 360 10 560 60C720 100 690 190 540 205C380 220 140 200 60 170"
+    stroke="url(#crewSynchOrbit)"
+    stroke-width="10"
+    stroke-linecap="round"
+    fill="none"
+  />
+  <circle cx="70" cy="160" r="6" fill="#00c4ff" />
+  <circle cx="600" cy="120" r="6" fill="#00c4ff" />
+
+  <g transform="translate(95 70)">
+    <path d="M0 50C0 22.4 22.4 0 50 0C77.6 0 100 22.4 100 50V75H0V50Z" fill="#f4b400" />
+    <path d="M40 0H60L66 35H34L40 0Z" fill="#fbd75c" />
+    <rect y="70" width="100" height="12" rx="6" fill="#f4b400" />
+  </g>
+
+  <text x="150" y="140" font-family="'Inter', 'Segoe UI', sans-serif" font-size="110" font-weight="700" fill="url(#crewSynchDark)">
+    Crew
+  </text>
+  <text x="390" y="140" font-family="'Orbitron', 'Inter', sans-serif" font-size="110" font-weight="600" fill="url(#crewSynchLight)">
+    Synch
+  </text>
+
+  <g stroke="#95e5ff" stroke-width="3" stroke-linecap="round">
+    <line x1="440" y1="150" x2="440" y2="200" />
+    <circle cx="440" cy="200" r="6" fill="#95e5ff" />
+    <line x1="510" y1="155" x2="510" y2="205" />
+    <circle cx="510" cy="205" r="5" fill="#95e5ff" />
+    <polyline points="565,150 565,185 605,185" />
+    <circle cx="605" cy="185" r="5" fill="#95e5ff" />
+  </g>
+</svg>

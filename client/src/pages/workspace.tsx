@@ -33,7 +33,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import logoImage from "@assets/image_1762998239376.png";
+import logoImage from "@assets/crewsynch-logo.svg";
 import {
   CalendarClock,
   CalendarDays,

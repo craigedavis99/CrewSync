@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Clock3, ShieldCheck, Smartphone } from "lucide-react";
-import logoImage from "@assets/image_1762998239376.png";
+import logoImage from "@assets/crewsynch-logo.svg";
 
 const highlights = [
   { icon: ShieldCheck, title: "Secure by default", body: "Keep customer notes, photos, and payments safe in one workspace." },

@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import { AboutUsDialog } from "./AboutUsDialog";
-import logoImage from "@assets/image_1762998239376.png";
+import logoImage from "@assets/crewsynch-logo.svg";
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

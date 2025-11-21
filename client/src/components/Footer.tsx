@@ -1,4 +1,4 @@
-import logoImage from "@assets/image_1762998239376.png";
+import logoImage from "@assets/crewsynch-logo.svg";
 
 export function Footer() {
   const footerSections = [
