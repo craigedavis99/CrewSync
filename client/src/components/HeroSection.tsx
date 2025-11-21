@@ -53,7 +53,7 @@ export function HeroSection() {
         <div className="mt-16">
           <img
             src={dashboardImage}
-            alt="CrewSync Dashboard"
+            alt="CrewSynch Dashboard"
             className="rounded-xl shadow-2xl w-full"
             data-testid="img-hero-product"
           />

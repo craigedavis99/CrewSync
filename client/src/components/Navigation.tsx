@@ -27,7 +27,7 @@ export function Navigation() {
             <div className="flex items-center">
               <img
                 src={logoImage}
-                alt="CrewSync Logo"
+                alt="CrewSynch Logo"
                 className="h-16"
                 data-testid="img-logo"
               />

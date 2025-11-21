@@ -1,4 +1,4 @@
-# CrewSync Landing Page Design Guidelines
+# CrewSynch Landing Page Design Guidelines
 
 ## Design Approach
 
@@ -113,7 +113,7 @@ Drawing inspiration from modern B2B SaaS leaders like Linear, Notion, and Slack 
 
 **Footer:**
 - 4-column layout: Company, Product, Resources, Contact
-- CrewSync logo, social links (cyan hover states)
+- CrewSynch logo, social links (cyan hover states)
 - Newsletter signup with cyan submit button
 - Copyright and legal links
 

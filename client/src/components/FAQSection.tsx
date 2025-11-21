@@ -15,11 +15,11 @@ const faqs = [
     answer: "Absolutley!  You and your team are our working not chained to a desk. There are some one off side features that you may prefer to do at a desktop but this was built with mobility in mind.",
   },
   {
-    question: "Is my data secure with CrewSync?",
+    question: "Is my data secure with CrewSynch?",
     answer: "Absolutely. We use enterprise-grade encryption for all data in transit and at rest. Our platform is SOC 2 compliant and undergoes regular security audits.",
   },
   {
-    question: "How long does it take to set up CrewSync?",
+    question: "How long does it take to set up CrewSynch?",
     answer: "It will take about a 5-10 minutes of your time with call, chat, or email reply then we do the rest. Up and running <24hrs",
   },
   {
@@ -41,7 +41,7 @@ export function FAQSection() {
             Frequently Asked Questions
           </h2>
           <p className="text-xl text-muted-foreground" data-testid="text-faq-subheading">
-            Everything you need to know about CrewSync
+            Everything you need to know about CrewSynch
           </p>
         </div>
 

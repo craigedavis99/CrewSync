@@ -47,7 +47,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <img
               src={logoImage}
-              alt="CrewSync Logo"
+              alt="CrewSynch Logo"
               className="h-10 mb-4"
               data-testid="img-footer-logo"
             />

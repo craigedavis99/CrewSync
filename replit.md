@@ -1,8 +1,8 @@
-# CrewSync - Construction Crew Management Software
+# CrewSynch - Construction Crew Management Software
 
 ## Overview
 
-CrewSync is a modern B2B SaaS application designed for small service businesses, specifically focusing on construction crew management and scheduling. The application helps service professionals manage phone calls, schedules, invoices, and customer communications efficiently. Currently, the project is in the landing page phase, showcasing the product's value proposition to potential customers.
+CrewSynch is a modern B2B SaaS application designed for small service businesses, specifically focusing on construction crew management and scheduling. The application helps service professionals manage phone calls, schedules, invoices, and customer communications efficiently. Currently, the project is in the landing page phase, showcasing the product's value proposition to potential customers.
 
 The application emphasizes simplicity and ease of use, targeting small business owners who need professional tools without complex learning curves or expensive implementations.
 

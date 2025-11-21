@@ -3,19 +3,19 @@ const testimonials = [
     name: "Tom Richards",
     role: "Owner",
     company: "Richards Plumbing",
-    content: "I use CrewSync to track everything and make sure important jobs get done. It's the best investment I've made in my business.",
+    content: "I use CrewSynch to track everything and make sure important jobs get done. It's the best investment I've made in my business.",
   },
   {
     name: "Maria Santos",
     role: "HVAC Technician",
     company: "CoolAir Services",
-    content: "CrewSync is the productivity tool I've been searching for my whole career. Actually, it's even better than I imagined.",
+    content: "CrewSynch is the productivity tool I've been searching for my whole career. Actually, it's even better than I imagined.",
   },
   {
     name: "James Chen",
     role: "Garage Door Specialist",
     company: "DoorMasters LLC",
-    content: "The tool that has had the greatest impact on my business is unquestionably CrewSync. I can't imagine working without it.",
+    content: "The tool that has had the greatest impact on my business is unquestionably CrewSynch. I can't imagine working without it.",
   },
 ];
 

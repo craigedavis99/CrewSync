@@ -28,9 +28,9 @@ export default function Login() {
       <div className="mx-auto flex max-w-6xl flex-col gap-10 px-6 py-12">
         <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
-            <img src={logoImage} alt="CrewSync" className="h-14" />
+            <img src={logoImage} alt="CrewSynch" className="h-14" />
             <div>
-              <p className="text-sm text-muted-foreground uppercase tracking-wide">CrewSync</p>
+              <p className="text-sm text-muted-foreground uppercase tracking-wide">CrewSynch</p>
               <h1 className="text-3xl font-semibold text-foreground">Welcome back</h1>
             </div>
           </div>

@@ -38,12 +38,15 @@ import {
   CalendarClock,
   CalendarDays,
   CheckCircle2,
+  ClipboardCheck,
   ClipboardList,
   Compass,
   FileText,
+  Filter,
   MapPin,
   MessageCircle,
   MessageSquare,
+  Navigation,
   Trash,
   Paperclip,
   PhoneCall,
@@ -55,6 +58,7 @@ import {
   Send,
   Sparkles,
   Timer,
+  UserPlus,
 } from "lucide-react";
 
 type MessageStatus = "called-back" | "todo";
@@ -218,6 +222,7 @@ export default function WorkspaceShell() {
   const [activeTab, setActiveTab] = useState("home");
   const [expandedThread, setExpandedThread] = useState<string | null>(null);
   const [messageThreads, setMessageThreads] = useState(threads);
+  const [messageFilter, setMessageFilter] = useState<"all" | MessageStatus>("all");
   const [selectedDate, setSelectedDate] = useState(todayISO);
   const [createJobOpen, setCreateJobOpen] = useState(false);
   const [createCrewOpen, setCreateCrewOpen] = useState(false);
@@ -237,6 +242,9 @@ export default function WorkspaceShell() {
   const [completionDetails, setCompletionDetails] = useState<Record<string, CompletionDetails>>({});
   const [expandedCompletionJob, setExpandedCompletionJob] = useState<string | null>(null);
   const filteredJobs = jobs.filter((job) => job.date === selectedDate);
+  const filteredMessageThreads = messageThreads.filter((thread) =>
+    messageFilter === "all" ? true : thread.status === messageFilter,
+  );
   const resetJobForm = (dateValue = selectedDate) =>
     setNewJobForm({
       job: "",
@@ -524,13 +532,46 @@ export default function WorkspaceShell() {
       targetTab: "invoices",
     },
   ];
+  const messageFilterOptions: { label: string; value: "all" | MessageStatus; count: number }[] = [
+    { label: "All", value: "all", count: messageThreads.length },
+    ...Object.entries(messageStatusOptions).map(([value, label]) => ({
+      label,
+      value: value as MessageStatus,
+      count: messageThreads.filter((thread) => thread.status === value).length,
+    })),
+  ];
+  const scheduleQuickActions = [
+    {
+      label: "Day plan",
+      description: "Stops & crew",
+      icon: ClipboardCheck,
+      onClick: () => setActiveTab("schedule"),
+    },
+    {
+      label: "Navigate",
+      description: "Open maps",
+      icon: Navigation,
+      onClick: () => {
+        const firstJob = filteredJobs[0];
+        if (firstJob) {
+          window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(firstJob.address)}`);
+        }
+      },
+    },
+    {
+      label: "Add crew",
+      description: "Invite helper",
+      icon: UserPlus,
+      onClick: () => handleCreateCrewOpenChange(true),
+    },
+  ];
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300 pb-24 md:pb-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-6">
         <div className="grid gap-6 md:grid-cols-[90px_1fr] lg:grid-cols-[110px_1fr]">
           <aside className="hidden md:flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-xl transition-colors">
             <div className="flex h-14 items-center justify-center rounded-xl bg-white/10">
-              <img src={logoImage} alt="CrewSync" className="h-10" />
+              <img src={logoImage} alt="CrewSynch" className="h-10" />
             </div>
             {navItems.map((item) => {
               const isActive = activeTab === item.value;
@@ -554,7 +595,7 @@ export default function WorkspaceShell() {
             <header className="rounded-2xl border border-border bg-card px-5 py-6 shadow-xl transition-colors">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.16em] text-primary/80">CrewSync workspace</p>
+                  <p className="text-xs uppercase tracking-[0.16em] text-primary/80">CrewSynch workspace</p>
                   <h1 className="text-3xl font-semibold text-foreground">Command Center</h1>
                   <p className="text-sm text-muted-foreground">Messages, schedules, invoices, and estimates at a glance.</p>
                 </div>
@@ -629,11 +670,28 @@ export default function WorkspaceShell() {
                       Auto-reply: Busy
                     </Badge>
                   </div>
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {messageFilterOptions.map((option) => {
+                      const isActive = messageFilter === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          onClick={() => setMessageFilter(option.value)}
+                          className={`flex items-center gap-1 rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                            isActive ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground"
+                          }`}
+                        >
+                          {option.label}
+                          <span className="text-[11px] font-bold">{option.count}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
 
                   <Card className="border-border/70">
                     <CardContent className="p-0">
-                          <div className="hidden md:block">
-                            <Table>
+                      <div className="hidden md:block">
+                        <Table>
                               <TableHeader>
                                 <TableRow>
                                   <TableHead>Caller</TableHead>
@@ -645,7 +703,7 @@ export default function WorkspaceShell() {
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
-                                {messageThreads.map((thread) => (
+                                {filteredMessageThreads.map((thread) => (
                                   <Fragment key={thread.id}>
                                     <TableRow>
                                       <TableCell className="font-semibold text-foreground">{thread.customer}</TableCell>
@@ -705,7 +763,7 @@ export default function WorkspaceShell() {
                         </div>
 
                         <div className="grid gap-3 p-4 md:hidden">
-                        {messageThreads.map((thread) => {
+                        {filteredMessageThreads.map((thread) => {
                           const isOpen = expandedThread === thread.id;
                           return (
                             <div key={thread.id} className="rounded-lg border border-border/70 bg-background p-3 shadow-sm">
@@ -805,6 +863,21 @@ export default function WorkspaceShell() {
                         Create job
                       </Button>
                     </div>
+                  </div>
+                  <div className="grid gap-2 sm:grid-cols-3">
+                    {scheduleQuickActions.map((action) => (
+                      <button
+                        key={action.label}
+                        onClick={action.onClick}
+                        className="flex items-center justify-between rounded-xl border border-border bg-card px-3 py-2 text-left shadow-sm"
+                      >
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">{action.label}</p>
+                          <p className="text-xs text-muted-foreground">{action.description}</p>
+                        </div>
+                        <action.icon className="h-4 w-4 text-primary" />
+                      </button>
+                    ))}
                   </div>
                   <Card className="border-border/70">
                     <CardContent className="p-0">
@@ -1045,7 +1118,7 @@ export default function WorkspaceShell() {
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div className="grid gap-2">
                           <Label htmlFor="company">Company name</Label>
-                          <Input id="company" placeholder="CrewSync Services" />
+                          <Input id="company" placeholder="CrewSynch Services" />
                         </div>
                         <div className="grid gap-2">
                           <Label htmlFor="customer">Customer</Label>
