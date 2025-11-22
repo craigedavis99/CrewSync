@@ -8,7 +8,7 @@ const features = [
   {
     icon: Phone,
     title: "More leads. More jobs. Less time on the phone",
-    description: "You don't have time to dig through voicemails. Crew Sync pulls every call into one inbox, adds clear summaries, and creates automatic follow-up tasks. It can text customers back instantly so you have the details before you dial. Get big-brand customer service without the big-brand price.",
+    description: "You don't have time to dig through voicemails. CrewSynch pulls every call into one inbox, adds clear summaries, and creates automatic follow-up tasks. It can text customers back instantly so you have the details before you dial. Get big-brand customer service without the big-brand price.",
     image: plumberImage,
   },
   {
@@ -27,7 +27,7 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section id="solutions" className="py-24 px-6 lg:px-8">
+    <section id="solutions" className="pt-10 pb-24 px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-20">
           <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-6" data-testid="text-features-heading">

@@ -16,7 +16,7 @@ const solutions = [
 
 export function ProblemSolutionSection() {
   return (
-    <section className="py-24 px-6 lg:px-8">
+    <section className="pt-8 pb-16 px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
         <div className="grid md:grid-cols-2 gap-16">
           <div>
@@ -38,7 +38,7 @@ export function ProblemSolutionSection() {
           </div>
 
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8" data-testid="text-solution-heading">Crew Sync makes it simple</h2>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8" data-testid="text-solution-heading">CrewSynch makes it simple</h2>
             <div className="space-y-4">
               {solutions.map((solution, index) => (
                 <div

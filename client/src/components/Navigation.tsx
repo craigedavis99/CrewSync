@@ -74,6 +74,15 @@ export function Navigation() {
           </div>
 
           <div className="md:hidden flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-2 border-primary text-primary font-semibold"
+              onClick={() => setLocation("/login")}
+              data-testid="button-mobile-inline-login"
+            >
+              Log In
+            </Button>
             <ThemeToggle />
             <Button
               variant="ghost"

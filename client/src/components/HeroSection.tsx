@@ -4,12 +4,12 @@ import dashboardImage from "@assets/generated_images/Dashboard_interface_mockup_
 
 export function HeroSection() {
   return (
-    <section className="pt-32 pb-20 px-6 lg:px-8">
+    <section className="pt-28 pb-6 px-6 lg:px-8">
       <div className="max-w-5xl mx-auto text-center">
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-6 leading-tight" data-testid="text-hero-headline">
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-foreground mb-4 leading-tight" data-testid="text-hero-headline">
           Simple tools so you can focus on the work, not the paperwork.
         </h1>
-        <p className="text-xl md:text-2xl text-muted-foreground mb-8 leading-relaxed max-w-3xl mx-auto" data-testid="text-hero-subheadline">From first call to final invoice, Crew Sync keeps it all organized in one simple, easy-to-use interface</p>
+        <p className="text-xl md:text-2xl text-muted-foreground mb-6 leading-relaxed max-w-3xl mx-auto" data-testid="text-hero-subheadline">From first call to final invoice, CrewSynch keeps it all organized in one simple, easy-to-use interface</p>
         
         <div className="mb-8">
           <Button
@@ -42,22 +42,6 @@ export function HeroSection() {
           </div>
         </div>
 
-        <a
-          href="#join"
-          className="text-primary hover:text-primary/80 font-medium text-base underline underline-offset-4"
-          data-testid="link-hero-cta-secondary"
-        >
-          Join the first 25 crews
-        </a>
-
-        <div className="mt-16">
-          <img
-            src={dashboardImage}
-            alt="CrewSynch Dashboard"
-            className="rounded-xl shadow-2xl w-full"
-            data-testid="img-hero-product"
-          />
-        </div>
       </div>
     </section>
   );

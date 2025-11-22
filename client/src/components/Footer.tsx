@@ -6,9 +6,7 @@ export function Footer() {
       title: "Company",
       links: [
         { label: "About Us", href: "#about" },
-        { label: "Careers", href: "#careers" },
         { label: "Contact", href: "#contact" },
-        { label: "Blog", href: "#blog" },
       ],
     },
     {
@@ -17,7 +15,6 @@ export function Footer() {
         { label: "Features", href: "#features" },
         { label: "Solutions", href: "#solutions" },
         { label: "Pricing", href: "#pricing" },
-        { label: "Integrations", href: "#integrations" },
       ],
     },
     {
@@ -77,7 +74,7 @@ export function Footer() {
 
         <div className="border-t pt-8">
           <p className="text-sm text-muted-foreground text-center" data-testid="text-copyright">
-            © {new Date().getFullYear()} Crew Sync. All rights reserved.
+            © {new Date().getFullYear()} CrewSynch. All rights reserved.
           </p>
         </div>
       </div>

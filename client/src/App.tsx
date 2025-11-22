@@ -8,6 +8,7 @@ import Login from "@/pages/login";
 import WorkspaceShell from "@/pages/workspace";
 import Admin from "@/pages/admin";
 import NotFound from "@/pages/not-found";
+import SettingsPage from "@/pages/settings";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 function Router() {
@@ -17,6 +18,7 @@ function Router() {
       <Route path="/login" component={Login} />
       <Route path="/workspace" component={WorkspaceShell} />
       <Route path="/admin" component={Admin} />
+      <Route path="/settings" component={SettingsPage} />
       <Route component={NotFound} />
     </Switch>
   );
