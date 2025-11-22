@@ -2,8 +2,8 @@
   "version": 2,
   "framework": "vite",
   "installCommand": "npm install",
-  "buildCommand": "npm run build:client && rm -rf public && mkdir -p public && cp -r dist/public/* public/",
-  "outputDirectory": "public",
+  "buildCommand": "npm run build:client",
+  "outputDirectory": "dist/public",
   "routes": [
     { "src": "/(.*)", "dest": "/index.html" }
   ]
