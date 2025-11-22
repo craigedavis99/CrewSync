@@ -5,6 +5,7 @@
   "buildCommand": "npm run build:client",
   "outputDirectory": "public",
   "routes": [
-    { "src": "/(.*)", "dest": "/index.html" }
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
   ]
 }
