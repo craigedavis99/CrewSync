@@ -40,6 +40,7 @@ const roles: Role[] = ["owner", "admin", "manager", "member", "viewer"];
 export default function SettingsPage() {
   const [, setLocation] = useLocation();
   const [tenantId, setTenantId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
   const [members, setMembers] = useState<MemberDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [formState, setFormState] = useState<{ username: string; role: Role }>({
@@ -54,49 +55,60 @@ export default function SettingsPage() {
   );
 
   useEffect(() => {
+    const existingToken = localStorage.getItem("authToken");
     const existingTenant = localStorage.getItem("tenantId");
-    if (existingTenant) {
+    if (existingToken && existingTenant) {
+      setToken(existingToken);
       setTenantId(existingTenant);
       return;
     }
 
     (async () => {
-      const resp = await fetch("/api/tenants", {
+      const username = `owner+${Date.now()}@demo.local`;
+      const password = "changeme";
+      const tenantName = "My Crew";
+      const resp = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "My Crew" }),
+        body: JSON.stringify({ username, password, tenantName }),
       });
-      if (!resp.ok) return;
+      if (!resp.ok) {
+        setError("Unable to create tenant. Is the server running?");
+        return;
+      }
       const data = await resp.json();
-      if (data?.tenant?.id) {
+      if (data?.token && data?.tenant?.id) {
+        localStorage.setItem("authToken", data.token);
         localStorage.setItem("tenantId", data.tenant.id);
+        setToken(data.token);
         setTenantId(data.tenant.id);
-
-        // seed an owner membership for this tenant so the UI has control
-        await fetch(`/api/tenants/${data.tenant.id}/invite`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "x-user-id": "owner" },
-          body: JSON.stringify({
-            username: "owner@demo",
-            password: "changeme",
-            role: "owner",
-            status: "active",
-          }),
-        });
       }
     })();
   }, []);
 
   useEffect(() => {
-    if (!tenantId) return;
-    void loadMembers(tenantId);
-  }, [tenantId]);
+    if (!tenantId || !token) return;
+    void loadMembers(tenantId, token);
+  }, [tenantId, token]);
 
-  const loadMembers = async (id: string) => {
+  const authHeaders = useMemo(
+    () =>
+      token
+        ? {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          }
+        : { "Content-Type": "application/json" },
+    [token],
+  );
+
+  const loadMembers = async (id: string, authToken: string) => {
     setLoading(true);
     setError(null);
     try {
-      const resp = await fetch(`/api/tenants/${id}/members`);
+      const resp = await fetch(`/api/tenants/${id}/members`, {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
       if (!resp.ok) {
         setError("Unable to load team. Is the server running?");
         return;
@@ -112,13 +124,13 @@ export default function SettingsPage() {
 
   const addMember = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!tenantId) return;
+    if (!tenantId || !token) return;
     setLoading(true);
     setError(null);
     try {
       const resp = await fetch(`/api/tenants/${tenantId}/invite`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({
           username: formState.username.trim(),
           password: "changeme",
@@ -131,7 +143,7 @@ export default function SettingsPage() {
         return;
       }
       setFormState({ username: "", role: "member" });
-      await loadMembers(tenantId);
+      await loadMembers(tenantId, token);
     } catch (err) {
       setError("Could not add member.");
     } finally {
@@ -140,19 +152,20 @@ export default function SettingsPage() {
   };
 
   const updateRole = async (membershipId: string, role: Role) => {
+    if (!token || !tenantId) return;
     setLoading(true);
     setError(null);
     try {
       const resp = await fetch(`/api/memberships/${membershipId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: authHeaders,
         body: JSON.stringify({ role }),
       });
       if (!resp.ok) {
         setError("Could not update role.");
         return;
       }
-      if (tenantId) await loadMembers(tenantId);
+      await loadMembers(tenantId, token);
     } catch (err) {
       setError("Could not update role.");
     } finally {
