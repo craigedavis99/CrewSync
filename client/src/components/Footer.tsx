@@ -12,7 +12,6 @@ export function Footer() {
     {
       title: "Product",
       links: [
-        { label: "Features", href: "#features" },
         { label: "Solutions", href: "#solutions" },
         { label: "Pricing", href: "#pricing" },
       ],
@@ -20,7 +19,6 @@ export function Footer() {
     {
       title: "Resources",
       links: [
-        { label: "Documentation", href: "#docs" },
         { label: "Help Center", href: "#help" },
         { label: "FAQ", href: "#faq" },
         { label: "Case Studies", href: "#case-studies" },

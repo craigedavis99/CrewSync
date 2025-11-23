@@ -12,7 +12,7 @@ const faqs = [
   },
   {
     question: "Does this work on my phone",
-    answer: "Absolutley!  You and your team are our working not chained to a desk. There are some one off side features that you may prefer to do at a desktop but this was built with mobility in mind.",
+    answer: "Absolutley! You and your team are out working not chained to a desk. This simple app was built with mobilty in mind",
   },
   {
     question: "Is my data secure with CrewSynch?",
@@ -20,11 +20,11 @@ const faqs = [
   },
   {
     question: "How long does it take to set up CrewSynch?",
-    answer: "It will take about a 5-10 minutes of your time with call, chat, or email reply then we do the rest. Up and running <24hrs",
+    answer: "It will take about 5-10 minutes of your time via a quick call, chat, or email.  From inital contact to complete set up you will be ready to go in less than <24hrs",
   },
   {
     question: "What kind of support do you offer?",
-    answer: "We offer 24/7 customer support via phone, email, and live chat. All plans include access to our knowledge base, video tutorials, ",
+    answer: "We offer 24/7 customer support via phone, email, and live chat. All plans include access to our knowledge base and quick video tutorials",
   },
   {
     question: "How does the phone answering work, I just use my cell phone?",
@@ -66,3 +66,6 @@ export function FAQSection() {
     </section>
   );
 }
+
+
+
