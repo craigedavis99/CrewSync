@@ -36,7 +36,7 @@ export function Footer() {
   ];
 
   return (
-    <footer id="contact" className="bg-muted/30 border-t">
+    <footer className="bg-muted/30 border-t">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 py-16">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           <div className="col-span-2 md:col-span-1">

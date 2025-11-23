@@ -4,6 +4,7 @@ import { ProblemSolutionSection } from "@/components/ProblemSolutionSection";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { FAQSection } from "@/components/FAQSection";
 import { CTASection } from "@/components/CTASection";
+import { ContactSection } from "@/components/ContactSection";
 import { Footer } from "@/components/Footer";
 
 export default function Landing() {
@@ -15,6 +16,7 @@ export default function Landing() {
       <FeaturesSection />
       <FAQSection />
       <CTASection />
+      <ContactSection />
       <Footer />
     </div>
   );

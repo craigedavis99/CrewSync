@@ -11,11 +11,20 @@ export function Navigation() {
   const [aboutUsOpen, setAboutUsOpen] = useState(false);
   const [, setLocation] = useLocation();
 
+  const scrollToContact = () => {
+    const contactSection = document.getElementById("contact");
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: "smooth" });
+    } else {
+      window.location.hash = "#contact";
+    }
+  };
+
   const navItems = [
     { label: "About Us", href: "#about", onClick: () => setAboutUsOpen(true) },
     { label: "Solutions", href: "#solutions" },
     { label: "FAQ", href: "#faq" },
-    { label: "Contact Us", href: "#contact" },
+    { label: "Contact Us", href: "#contact", onClick: scrollToContact },
   ];
 
   return (
@@ -66,7 +75,7 @@ export function Navigation() {
             </Button>
             <Button
               className="bg-accent text-accent-foreground font-semibold shadow-md hover:shadow-lg"
-              onClick={() => setLocation("/workspace")}
+              onClick={scrollToContact}
               data-testid="button-signup"
             >
               Sign up for Free Trial
@@ -131,7 +140,10 @@ export function Navigation() {
               </Button>
               <Button
                 className="w-full bg-accent text-accent-foreground font-semibold"
-                onClick={() => setLocation("/workspace")}
+                onClick={() => {
+                  scrollToContact();
+                  setMobileMenuOpen(false);
+                }}
                 data-testid="button-mobile-signup"
               >
                 Sign up for Free Trial

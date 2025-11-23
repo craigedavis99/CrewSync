@@ -3,6 +3,15 @@ import { Play, CheckCircle2 } from "lucide-react";
 import dashboardImage from "@assets/generated_images/Dashboard_interface_mockup_37adf6c7.png";
 
 export function HeroSection() {
+  const scrollToContact = () => {
+    const contactSection = document.getElementById("contact");
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: "smooth" });
+    } else {
+      window.location.hash = "#contact";
+    }
+  };
+
   return (
     <section className="pt-28 pb-6 px-6 lg:px-8">
       <div className="max-w-5xl mx-auto text-center">
@@ -15,6 +24,7 @@ export function HeroSection() {
           <Button
             size="lg"
             className="bg-[#67bcd9] text-accent-foreground font-bold text-2xl px-16 py-7 shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 border-2 border-accent"
+            onClick={scrollToContact}
             data-testid="button-hero-help-today"
           >
             Let us help today
